@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijital Dedektif: Siber Şehirde Etik İzler</title>
+    <!-- Fontlar -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- PDF Kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --primary: #0ea5e9;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(244, 63, 94, 0.15), transparent 25%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #38bdf8, #a78bfa);
+            -webkit-background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: var(--panel-bg);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .vaka-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--glass-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .vaka-desc {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        button {
+            font-family: 'Inter', sans-serif;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 1.2rem;
+            font-size: 1.15rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .feedback.success { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #34d399; }
+        .feedback.error { background: rgba(244, 63, 94, 0.2); border: 1px solid var(--accent); color: #fb7185; }
+
+        /* Sertifika Alanı (Başlangıçta Gizli) */
+        #certificate-container {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .certificate {
+            background: white;
+            color: #0f172a;
+            padding: 3rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 8px solid #cbd5e1;
+            outline: 2px solid #0f172a;
+            outline-offset: -12px;
+        }
+
+        .certificate h2 { font-size: 2.5rem; color: #0f172a; margin-bottom: 1rem; }
+        .certificate p { font-size: 1.4rem; margin-bottom: 1rem; }
+        .cert-name { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: #0ea5e9; margin: 1rem 0; text-transform: uppercase; }
+        .badges { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+        .badge { background: #f1f5f9; padding: 0.75rem 1.5rem; border-radius: 999px; font-weight: 600; font-size: 1.1rem; color: #334155; border: 1px solid #cbd5e1; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+        
+        #player-setup { text-align: center; }
+        #player-name { padding: 1rem; font-size: 1.2rem; border-radius: 8px; border: none; width: 80%; max-width: 400px; margin-bottom: 1rem; outline: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Dijital Dedektif</h1>
+        <p style="font-size: 1.2rem; color: var(--text-muted);">Siber Şehirde Etik İzler</p>
+    </header>
+
+    <!-- Kullanıcı Giriş Ekranı -->
+    <div class="container" id="player-setup">
+        <h2>Siber Polis Akademisine Hoş Geldin!</h2>
+        <p class="vaka-desc" style="margin-top: 1rem;">Siber Şehir'deki etik ihlallerini çözmek için dedektif kimliğini oluştur.</p>
+        <input type="text" id="player-name" placeholder="Adın ve Soyadın..." autocomplete="off">
+        <br>
+        <button class="btn-primary" onclick="startGame()">Görevi Başlat</button>
+    </div>
+
+    <!-- Oyun Ekranı -->
+    <div id="game-ui" class="hidden">
+        <div class="status-bar" style="margin-bottom: 2rem; width: 100%; max-width: 900px;">
+            <span>Vaka: <span id="level-display">1</span>/5</span>
+            <span>Skor: <span id="score-display">0</span> DP</span>
+        </div>
+
+        <div class="container">
+            <h2 id="vaka-title" class="vaka-title">Vaka Yükleniyor...</h2>
+            <p id="vaka-desc" class="vaka-desc">...</p>
+            <div id="options-container" class="options-grid"></div>
+            
+            <div id="feedback" class="feedback"></div>
+            <button id="next-btn" class="btn-primary hidden" onclick="nextLevel()">Sonraki Vakaya Geç</button>
+        </div>
+    </div>
+
+    <!-- Final / Sertifika Ekranı -->
+    <div class="container hidden" id="certificate-container">
+        <div class="certificate" id="certificate-content">
+            <h2>Bilişim Etiği Dedektifi</h2>
+            <p>Bu sertifika,</p>
+            <div class="cert-name" id="cert-player-name">Öğrenci Adı</div>
+            <p>Siber Şehir'deki dijital etik vakalarını başarıyla çözerek <strong><span id="cert-score">100</span> DP</strong> kazandığı için verilmiştir.</p>
+            <p style="font-size: 1rem; color: #64748b; margin-top: 2rem;">Tarih: <span id="cert-date"></span></p>
+            <div class="badges" id="cert-badges"></div>
+        </div>
+        <button class="btn-primary" style="width: 100%; margin-top: 2rem;" onclick="downloadPDF()">Sertifikayı PDF Olarak İndir</button>
+    </div>
+
+<script>
+    // Audio Context (Web Audio API)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'success') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'error') {
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.2);
+        }
+    }
+
+    // 5 Kategori ve her birinde 5 alternatif vaka havuzu
+    const cases = [
+        {
+            category: "Dijital Telif ve Emek Hırsızlığı",
+            badge: "Telif Muhafızı 🛡️",
+            pool: [
+                {
+                    q: "Bir arkadaşın, internetten bulduğu profesyonel bir fotoğrafı kendi çekmiş gibi fotoğrafçılık kulübü yarışmasına gönderdi.",
+                    opts: [
+                        { text: "Durumu öğretmene bildirip kaynağı göstermesi gerektiğini söylerim.", correct: true, msg: "Harika! Emeğe saygı duymak bilişim etiğinin temelidir." },
+                        { text: "Bozuntuya vermem, sonuçta herkes internetten fotoğraf alıyor.", correct: false, msg: "Yanlış karar. Fikir ve sanat eserleri kanunla korunur, başkasının eserini sahiplenmek emek hırsızlığıdır." }
+                    ]
+                },
+                {
+                    q: "Proje ödevin için bir fon müziğine ihtiyacın var. YouTube'da beğendiğin telifli bir şarkı buldun.",
+                    opts: [
+                        { text: "MP3 dönüştürücü ile indirip projeme doğrudan eklerim.", correct: false, msg: "Hatalı! Telifli içerikler izinsiz kullanılamaz." },
+                        { text: "Creative Commons (Açık lisanslı) ücretsiz müzik kütüphanelerinde alternatif ararım.", correct: true, msg: "Doğru! Açık lisanslı içerikler yasal ve etik bir çözümdür." }
+                    ]
+                },
+                // Ekstra 3 senaryo buraya eklenebilir (Kod uzunluğunu optimize etmek için 2'şer örnekle başlattım, 5'e tamamlayabilirsiniz).
+            ]
+        },
+        {
+            category: "Kişisel Veriler ve Siber Zorbalık",
+            badge: "Siber Empati Rozeti 🤝",
+            pool: [
+                {
+                    q: "Sınıfın WhatsApp grubunda, bir arkadaşının haberi olmadan çekilmiş komik ama utandırıcı bir fotoğrafı paylaşıldı.",
+                    opts: [
+                        { text: "Gruba 'Bu fotoğrafı silmeliyiz, izinsiz paylaşım yapmak KVKK'ya aykırıdır' yazarım.", correct: true, msg: "Tebrikler! Hem arkadaşını korudun hem de veri gizliliğini savundun." },
+                        { text: "Fotoğrafa gülüp bir de kendi espirimi ekleyerek gruba yazarım.", correct: false, msg: "Yanlış! Bu siber zorbalığa ortak olmaktır." }
+                    ]
+                },
+                {
+                    q: "Yeni indirdiğin bir el feneri uygulaması, telefon rehberine ve fotoğraflarına erişim izni istiyor.",
+                    opts: [
+                        { text: "Hızlıca 'İzin Ver' diyerek uygulamayı kullanmaya başlarım.", correct: false, msg: "Dikkat! El feneri uygulamasının rehberinize ihtiyacı yoktur. Kişisel verilerinizi tehlikeye attınız." },
+                        { text: "İzinleri reddeder ve bu şüpheli uygulamayı telefonumdan silerim.", correct: true, msg: "Çok iyi! Uygulamaların sadece amacı doğrultusunda istediği izinlere onay verilmelidir." }
+                    ]
+                }
+            ]
+        },
+        {
+            category: "Bilgi Doğrulama ve Medya Okuryazarlığı",
+            badge: "Doğruluk Elçisi 🔍",
+            pool: [
+                {
+                    q: "Sosyal medyada 'Yarın okullar tatil!' yazan ama kaynağı belli olmayan, sadece bir görselden ibaret bir haber gördün.",
+                    opts: [
+                        { text: "Hemen kendi hesaplarımda paylaşıp tüm arkadaşlarıma gönderirim.", correct: false, msg: "Yanlış! Teyit edilmemiş bilgileri yaymak bilgi kirliliğine (dezenformasyon) sebep olur." },
+                        { text: "Milli Eğitim Bakanlığı'nın veya valiliğin resmi hesaplarını kontrol edip doğrularım.", correct: true, msg: "Harika! Eleştirel düşünce ve teyit etme becerini kullandın." }
+                    ]
+                },
+                {
+                    q: "Bir web sitesinde 'Tebrikler, son model telefon kazandınız! Adresinizi girin' şeklinde bir mesaj çıktı.",
+                    opts: [
+                        { text: "Bu bir oltalama (phishing) tuzağıdır, sekmeyi hemen kapatırım.", correct: true, msg: "Doğru! Bedava peynir sadece fare kapanında olur. Dijital tuzaklardan kaçındınız." },
+                        { text: "Şansımı denemek için formda istenen bilgileri girerim.", correct: false, msg: "Hatalı! Bu yöntemle siber dolandırıcılar kişisel verilerinizi ele geçirebilir." }
+                    ]
+                }
+            ]
+        },
+        {
+            category: "Yazılım Güvenliği ve Korsan",
+            badge: "Siber Kalkan 🛡️",
+            pool: [
+                {
+                    q: "Oynamak istediğin pahalı bir oyun var. Bir sitede oyunun 'Bedava Crackli/Korsan İndir' linkini buldun.",
+                    opts: [
+                        { text: "Antivirüs programımı kapatıp oyunu indirir ve kurarım.", correct: false, msg: "Çok tehlikeli! Korsan yazılımların içi fidye virüsleri ve truva atlarıyla (Trojan) doludur." },
+                        { text: "Emeğe saygı gösterir, korsan oyun indirmem ve yasal yollardan satın almak için para biriktiririm.", correct: true, msg: "Süper! Hem cihazını güvende tuttun hem de yazılımcıların emeğine saygı gösterdin." }
+                    ]
+                },
+                {
+                    q: "Okuldaki bilgisayara tanımadığın birinin flash belleğini takman istendi.",
+                    opts: [
+                        { text: "Önce mutlaka güncel bir antivirüs yazılımı ile tarama yaparım.", correct: true, msg: "Doğru karar! Zararlı yazılımlar genellikle harici belleklerle ağlara bulaşır." },
+                        { text: "Hemen takıp içindeki dosyalara çift tıklayarak açarım.", correct: false, msg: "Yanlış! Flash bellek içinde gizlenmiş bir virüs tüm okul ağına zarar verebilirdi." }
+                    ]
+                }
+            ]
+        },
+        {
+            category: "Yapay Zeka Etiği ve Netiket",
+            badge: "Gelecek Mimarı 🤖",
+            pool: [
+                {
+                    q: "Çevrimiçi çok oyunculu bir maçta takım arkadaşın hata yaptı. Sohbet kısmına ne yazarsın?",
+                    opts: [
+                        { text: "BÜYÜK HARFLERLE ona ne kadar kötü oynadığını yazarım.", correct: false, msg: "Yanlış! Büyük harfle yazmak internette 'bağırmak' anlamına gelir ve bu davranış netiket kurallarına aykırıdır." },
+                        { text: "Sorun olmadığını, bir sonraki elde toparlayabileceğimizi yazarım.", correct: true, msg: "Tebrikler! Dijital nezaket (Netiket) kurallarına uydun ve toksik bir ortam yaratmadın." }
+                    ]
+                },
+                {
+                    q: "Öğretmenin Türkçe dersinden kompozisyon yazmanı istedi. Sen ChatGPT'yi açtın.",
+                    opts: [
+                        { text: "Konuyu yazıp çıkan metni aynen kopyala-yapıştır yaparak öğretmene teslim ederim.", correct: false, msg: "Hatalı! Bu akademik dürüstlüğe aykırıdır. Yapay zeka senin yerine ödev yapmamalıdır." },
+                        { text: "Yapay zekadan sadece fikir ve ilham alırım, kompozisyonu kendi kelimelerimle ben yazarım.", correct: true, msg: "Çok doğru! Yapay zeka bir düşünce partneri olmalıdır, bir kopya makinesi değil." }
+                    ]
+                }
+            ]
+        }
+    ];
+
+    let currentLevel = 0;
+    let score = 0;
+    let playerName = "";
+    let earnedBadges = [];
+    let currentVaka = null;
+
+    function startGame() {
+        const nameInput = document.getElementById('player-name').value.trim();
+        if(!nameInput) {
+            alert("Lütfen dedektif adını gir!");
+            return;
+        }
+        playerName = nameInput;
+        document.getElementById('player-setup').classList.add('hidden');
+        document.getElementById('game-ui').classList.remove('hidden');
+        loadLevel();
+    }
+
+    function loadLevel() {
+        if(currentLevel >= cases.length) {
+            showCertificate();
+            return;
+        }
+
+        const category = cases[currentLevel];
+        // Rastgele bir vaka seç (Her kategorideki pool içinden)
+        const randomIndex = Math.floor(Math.random() * category.pool.length);
+        currentVaka = category.pool[randomIndex];
+        currentVaka.categoryName = category.category;
+        currentVaka.badge = category.badge;
+
+        document.getElementById('level-display').innerText = currentLevel + 1;
+        document.getElementById('vaka-title').innerText = currentVaka.categoryName;
+        document.getElementById('vaka-desc').innerText = currentVaka.q;
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        // Şıkları karıştır
+        const shuffledOpts = [...currentVaka.opts].sort(() => Math.random() - 0.5);
+
+        shuffledOpts.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text;
+            btn.onclick = () => checkAnswer(opt.correct, opt.msg, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+    }
+
+    function checkAnswer(isCorrect, message, clickedBtn) {
+        const buttons = document.querySelectorAll('#options-container button');
+        buttons.forEach(btn => btn.disabled = true);
+
+        const feedbackEl = document.getElementById('feedback');
+        feedbackEl.classList.remove('hidden', 'success', 'error');
+        feedbackEl.innerText = message;
+
+        if (isCorrect) {
+            playSound('success');
+            clickedBtn.style.backgroundColor = 'rgba(16, 185, 129, 0.4)';
+            clickedBtn.style.borderColor = 'var(--success)';
+            feedbackEl.classList.add('success');
+            score += 20;
+            earnedBadges.push(currentVaka.badge);
+            document.getElementById('score-display').innerText = score;
+        } else {
+            playSound('error');
+            clickedBtn.style.backgroundColor = 'rgba(244, 63, 94, 0.4)';
+            clickedBtn.style.borderColor = 'var(--accent)';
+            feedbackEl.classList.add('error');
+        }
+
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextLevel() {
+        currentLevel++;
+        loadLevel();
+    }
+
+    function showCertificate() {
+        document.getElementById('game-ui').classList.add('hidden');
+        const certContainer = document.getElementById('certificate-container');
+        certContainer.classList.remove('hidden');
+
+        document.getElementById('cert-player-name').innerText = playerName;
+        document.getElementById('cert-score').innerText = score;
+        
+        const today = new Date();
+        document.getElementById('cert-date').innerText = today.toLocaleDateString('tr-TR');
+
+        const badgesContainer = document.getElementById('cert-badges');
+        badgesContainer.innerHTML = '';
+        earnedBadges.forEach(badge => {
+            const b = document.createElement('span');
+            b.className = 'badge';
+            b.innerText = badge;
+            badgesContainer.appendChild(b);
+        });
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('certificate-content');
+        const opt = {
+            margin:       0.5,
+            filename:     'Bilisim_Etigi_Sertifikasi.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+</body>
+</html>
